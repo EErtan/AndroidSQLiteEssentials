@@ -17,7 +17,7 @@ public class SQLiteOpenHelperExtended extends android.database.sqlite.SQLiteOpen
 								 DatabaseManager.get_contactName() + " toxt not null," +
 								 DatabaseManager.get_contactPhoneNumber() + " text not null," +
 								 DatabaseManager.get_contactEmail() + " text not null" +
-								 DatabaseManager.get_contactPhoto() + " BLOB" + ");";
+								 DatabaseManager.get_contactPhotoId() + " BLOB" + ");";
 	db.execSQL(newTableQueryString);
   }
 
