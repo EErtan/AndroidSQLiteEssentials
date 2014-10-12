@@ -74,6 +74,21 @@ public class DatabaseManager {
 	return contentValues;
   }
 
+  public void updateRowAlternative(int inRowId, ModelContact inModelContact){
+
+	String updateStatement = "UPDATE " + tableName + " SET " + _contactName + "=?," + _contactPhoneNumber + "=?," + _contactEmail + "=?," + _contactPhotoId + "=?" + " WHERE " + _rowId + "=?";
+
+	android.database.sqlite.SQLiteStatement sqLiteStatement = sqLiteDatabase.compileStatement(updateStatement);
+
+	sqLiteStatement.bindString(1, inModelContact.getContactName());
+	sqLiteStatement.bindString(2, inModelContact.getContactPhoneNumber());
+	sqLiteStatement.bindString(3, inModelContact.getContactEmail());
+	if(inModelContact.getContactPhoto() != null){ sqLiteStatement.bindBlob(4, inModelContact.getContactPhoto()); }
+	sqLiteStatement.bindLong(5, inRowId);
+
+	sqLiteStatement.executeUpdateDelete();
+  }
+
   public void deleteRow(int inRowId){
 	sqLiteDatabase.delete(tableName, _rowId + "=" + inRowId, null);
   }
@@ -92,7 +107,7 @@ public class DatabaseManager {
 	sqLiteDatabase.insert(tableName, null, contentValues); // protect with a try-catch
   }
 
-  public void addRowSqlStatement(com.nullcognition.androidsqliteessentials.ModelContact inModelContact){
+  public void addRowAlternative(com.nullcognition.androidsqliteessentials.ModelContact inModelContact){
 	String insertStatment = "INSELT INTO " + tableName +
 							" (" + _contactName + ", " +
 							_contactPhoneNumber + ", " +
@@ -151,5 +166,73 @@ public class DatabaseManager {
 	// }
 
 	return modelContact;
+  }
+
+  public java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact> getAllData(){
+
+	java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact> allRowsObj = new java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact>();
+	android.database.Cursor cursor;
+	ModelContact rowContactObj;
+
+	String[] columns = new String[]{_rowId, tableName, _contactPhoneNumber, _contactEmail, _contactPhotoId};
+
+	try{
+
+	  cursor = sqLiteDatabase.query(tableName, columns, null, null, null, null, null);
+	  cursor.moveToFirst();
+
+	  if(! cursor.isAfterLast()){
+		do{
+		  rowContactObj = new ModelContact();
+		  rowContactObj.setContactId(cursor.getInt(0));
+		  prepareSendObject(rowContactObj, cursor);
+		  allRowsObj.add(rowContactObj);
+
+		}
+		while(cursor.moveToNext()); // try to move the cursor's
+		// pointer forward one position.
+	  }
+	}
+	catch(android.database.SQLException e){
+	  android.util.Log.e("DB ERROR", e.toString());
+	  e.printStackTrace();
+	}
+
+	return allRowsObj;
+
+  }
+
+  public java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact> getAllDataAlternative(){
+
+	java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact> allRowsObj = new java.util.ArrayList<com.nullcognition.androidsqliteessentials.ModelContact>();
+	android.database.Cursor cursor;
+	ModelContact rowContactObj;
+
+	try{
+
+	  // query to fetch all the columns and rows of the table
+	  String queryStatement = "SELECT" + " * " + "FROM " + tableName;
+
+	  cursor = sqLiteDatabase.rawQuery(queryStatement, null);
+
+	  cursor.moveToFirst();
+	  if(! cursor.isAfterLast()){
+		do{
+		  rowContactObj = new ModelContact();
+		  rowContactObj.setContactId(cursor.getInt(0));
+		  prepareSendObject(rowContactObj, cursor);
+		  allRowsObj.add(rowContactObj);
+
+		}
+		while(cursor.moveToNext());
+		// try to move the cursor's
+		// pointer forward one position.
+	  }
+	}
+	catch(android.database.SQLException e){
+	  android.util.Log.e("DB ERROR", e.toString());
+	  e.printStackTrace();
+	}
+	return allRowsObj;
   }
 }
