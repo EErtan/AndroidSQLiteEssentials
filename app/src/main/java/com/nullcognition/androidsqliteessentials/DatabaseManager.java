@@ -54,7 +54,7 @@ public class DatabaseManager {
 
   public void updateRow(int inRowId, ModelContact inModelContact){
 
-	android.content.ContentValues values = prepareData(inModelContact);
+	android.content.ContentValues values = prepareData(inModelContact); // for content resolver to process
 
 	String whereClause = _rowId + "=?";
 	String whereArgs[] = new String[]{String.valueOf(inRowId)};

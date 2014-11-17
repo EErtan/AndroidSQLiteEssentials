@@ -14,7 +14,7 @@ public class SQLiteOpenHelperExtended extends android.database.sqlite.SQLiteOpen
 	// only place for custom logic, as we get the values from the DatabaseManager class and build the query statementsq
 	String newTableQueryString = "create table " + DatabaseManager.getTableName() +
 								 " (" + DatabaseManager.get_rowId() + " integer primary key autoincrement not null," +
-								 DatabaseManager.get_contactName() + " toxt not null," +
+								 DatabaseManager.get_contactName() + " text not null," +
 								 DatabaseManager.get_contactPhoneNumber() + " text not null," +
 								 DatabaseManager.get_contactEmail() + " text not null" +
 								 DatabaseManager.get_contactPhotoId() + " BLOB" + ");";
