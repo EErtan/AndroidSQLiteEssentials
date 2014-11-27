@@ -4,5 +4,15 @@
 	<string name="app_name">SqlE2ndPass</string>
 	<string name="hello_world">Hello world!</string>
 	<string name="action_settings">Settings</string>
+	<string name="title_activity_add_new">AddNewActivity</string>
+	<string name="title_activity_contacts_main">ContactsMainActivity</string>
+
+
+	<string name="contact_name">Name</string>
+	<string name="contact_phone">Phone</string>
+	<string name="contact_email">Email</string>
+	<string name="add_photo">Add Photo</string>
+	<string name="done">Done</string>
+	<string name="contact_photo">Pick Photo</string>
 
 </resources>
