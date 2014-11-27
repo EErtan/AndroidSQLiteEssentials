@@ -27,7 +27,7 @@ public class SQLiteHelperClass {
 		 @Override
 		 public void onCreate(android.database.sqlite.SQLiteDatabase db){
 
-			db.execSQL("DROP TABLE IF EXISTS" + TABLE_CONTACTS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
 			onCreate(db);
 		 }
 
@@ -60,12 +60,12 @@ public class SQLiteHelperClass {
 
 	  android.content.ContentValues cv = new android.content.ContentValues();
 
-	  cv.put(KEY_NAME, "john");
+	  cv.put(KEY_NAME, "John");
 	  cv.put(KEY_NUMBER, 00);
 
 	  db.insert(TABLE_CONTACTS, null, cv);
 
-	  cv.put(KEY_NAME, "jack");
+	  cv.put(KEY_NAME, "Tom");
 	  cv.put(KEY_NUMBER, 55);
 
 	  db.insert(TABLE_CONTACTS, null, cv);

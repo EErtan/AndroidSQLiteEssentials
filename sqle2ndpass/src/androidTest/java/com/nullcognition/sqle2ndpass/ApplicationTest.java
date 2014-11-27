@@ -1,4 +1,4 @@
-package com.nullcognition.myapplication;
+package com.nullcognition.sqle2ndpass;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -21,6 +21,8 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
 	  bindViews();
 	  setListeners();
 
+	  sqlHelper = new SQLiteHelperClass(this);
+
    }
 
    private void setListeners(){
@@ -64,17 +66,16 @@ public class MainActivity extends Activity implements android.view.View.OnClickL
    public void onClick(android.view.View v){
 	  switch(v.getId()){
 		 case com.nullcognition.sqle2ndpass.R.id.insertBtn:
-
+			sqlHelper.insertToSimpleDataBase();
 			break;
-		 case com.nullcognition.sqle2ndpass.R.id.readBtn:
-
+		 case R.id.readBtn:
+			sqlHelper.getDataFromDatabase();
 			break;
-		 case com.nullcognition.sqle2ndpass.R.id.deleteBtn:
-
+		 case R.id.deleteBtn:
+			sqlHelper.delete("John");
 			break;
-		 case com.nullcognition.sqle2ndpass.R.id.updateBtn:
-
-			break;
+		 case R.id.updateBtn:
+			sqlHelper.update("Tom");
 		 default:
 			android.util.Log.e("Switch v", "Default parameter invalid");
 			throw new java.security.InvalidParameterException();
