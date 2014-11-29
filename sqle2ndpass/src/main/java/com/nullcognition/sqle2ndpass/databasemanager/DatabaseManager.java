@@ -1,16 +1,6 @@
 package com.nullcognition.sqle2ndpass.databasemanager;
 
-public class DatabaseManager {
-
-   private static final String DB_NAME    = "contact";
-   public static final  int    DB_VERSION = 1;
-
-   public static final  String TABLE_NAME         = "contact_table";
-   private static final String TABLE_ROW_ID       = "_id";
-   private static final String TABLE_ROW_NAME     = "contact_name";
-   private static final String TABLE_ROW_PHONENUM = "contact_number";
-   private static final String TABLE_ROW_EMAIL    = "contact_email";
-   private static final String TABLE_ROW_PHOTOID  = "photo_id";
+public class DatabaseManager implements com.nullcognition.sqle2ndpass.databasemanager.DatabaseConstants {
 
    private android.content.Context                context;
    private android.database.sqlite.SQLiteDatabase db;
@@ -22,34 +12,18 @@ public class DatabaseManager {
 	  this.db = helper.getWritableDatabase();
    }
 
-   private class CustomSQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
+   public android.database.sqlite.SQLiteDatabase getDataBase(){
+	  return db;
+   }
 
-	  public CustomSQLiteOpenHelper(android.content.Context inContext){
-		 super(context, DB_NAME, null, DB_VERSION);
-	  }
+   public void updateRow(int rowID, com.nullcognition.sqle2ndpass.ContactModel contactObj){
 
-	  @Override
-	  public void onCreate(android.database.sqlite.SQLiteDatabase db){
+	  android.content.ContentValues values = prepareData(contactObj);
 
-		 String newTableQueryString = "create table " + TABLE_NAME + " ("
-									  + TABLE_ROW_ID
-									  + " integer primary key autoincrement not null,"
-									  + TABLE_ROW_NAME + " text not null," + TABLE_ROW_PHONENUM
-									  + " text not null," + TABLE_ROW_EMAIL + " text not null,"
-									  + TABLE_ROW_PHOTOID + " BLOB" + ");";
+	  String whereClause = TABLE_ROW_ID + "=?";
+	  String whereArgs[] = new String[]{String.valueOf(rowID)};
 
-		 db.execSQL(newTableQueryString);
-
-	  }
-
-	  @Override
-	  public void onUpgrade(android.database.sqlite.SQLiteDatabase db, int oldVersion, int newVersion){
-
-		 String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
-		 db.execSQL(DROP_TABLE);
-		 onCreate(db);
-	  }
-
+	  db.update(TABLE_NAME, values, whereClause, whereArgs);
    }
 
    private android.content.ContentValues prepareData(com.nullcognition.sqle2ndpass.ContactModel contactObj){
@@ -63,23 +37,12 @@ public class DatabaseManager {
 	  return values;
    }
 
-   private void prepareSendObject(com.nullcognition.sqle2ndpass.ContactModel rowObj, android.database.Cursor cursor){
+   public int updateRow(android.content.ContentValues values, String whereClause, String[] whereArgs){
 
-	  rowObj.setId(cursor.getInt(cursor.getColumnIndexOrThrow(TABLE_ROW_ID)));
-	  rowObj.setName(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_NAME)));
-	  rowObj.setContactNo(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_PHONENUM)));
-	  rowObj.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_EMAIL)));
-	  rowObj.setPhoto(cursor.getBlob(cursor.getColumnIndexOrThrow(TABLE_ROW_PHOTOID)));
-   }
+	  int count = 0;
+	  count = db.update(TABLE_NAME, values, whereClause, whereArgs);
 
-   public void updateRow(int rowID, com.nullcognition.sqle2ndpass.ContactModel contactObj){
-
-	  android.content.ContentValues values = prepareData(contactObj);
-
-	  String whereClause = TABLE_ROW_ID + "=?";
-	  String whereArgs[] = new String[]{String.valueOf(rowID)};
-
-	  db.update(TABLE_NAME, values, whereClause, whereArgs);
+	  return count;
    }
 
    public void updateRowAlternative(int rowId, com.nullcognition.sqle2ndpass.ContactModel contactObj){
@@ -103,6 +66,17 @@ public class DatabaseManager {
 	  catch(Exception e){ e.printStackTrace(); }
    }
 
+   public int deleteRow(String whereClause, String[] whereArgs){
+
+	  int count = 0;
+
+	  try{
+		 count = db.delete(TABLE_NAME, whereClause, whereArgs);
+	  }
+	  catch(Exception e){ e.printStackTrace(); }
+	  return count;
+   }
+
    public void deleteRowAlternative(int rowId){
 
 	  String deleteStatement = "DELETE FROM " + TABLE_NAME + " WHERE " + TABLE_ROW_ID + "=?";
@@ -114,11 +88,20 @@ public class DatabaseManager {
    public void addRow(com.nullcognition.sqle2ndpass.ContactModel inContactModel){
 
 	  android.content.ContentValues values = prepareData(inContactModel);
-
 	  try{
 		 db.insert(TABLE_NAME, null, values);
 	  }
 	  catch(Exception e){ e.printStackTrace(); }
+   }
+
+   public long addRow(android.content.ContentValues inContentValues){
+
+	  long id = - 1;
+	  try{
+		 id = db.insert(TABLE_NAME, null, inContentValues);
+	  }
+	  catch(Exception e){ e.printStackTrace(); }
+	  return id;
    }
 
    public void addRowAlternative(com.nullcognition.sqle2ndpass.ContactModel contactObj){
@@ -160,6 +143,15 @@ public class DatabaseManager {
 	  }
 
 	  return rowContactObj;
+   }
+
+   private void prepareSendObject(com.nullcognition.sqle2ndpass.ContactModel rowObj, android.database.Cursor cursor){
+
+	  rowObj.setId(cursor.getInt(cursor.getColumnIndexOrThrow(TABLE_ROW_ID)));
+	  rowObj.setName(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_NAME)));
+	  rowObj.setContactNo(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_PHONENUM)));
+	  rowObj.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(TABLE_ROW_EMAIL)));
+	  rowObj.setPhoto(cursor.getBlob(cursor.getColumnIndexOrThrow(TABLE_ROW_PHOTOID)));
    }
 
    public com.nullcognition.sqle2ndpass.ContactModel getRowAsObjectAlternative(int rowID){
@@ -250,5 +242,41 @@ public class DatabaseManager {
 	  }
 	  return allRowsObj;
    }
+
+   public android.database.Cursor getAllCursor(String[] projection, String selection, String[] selectionArgs, String sortOrder){
+
+	  android.database.Cursor cursor = null;
+	  try{
+		 cursor = db.query(TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+	  }
+	  catch(Exception e){ e.printStackTrace(); }
+	  return cursor;
+   }
+
+   private class CustomSQLiteOpenHelper extends android.database.sqlite.SQLiteOpenHelper {
+
+	  public CustomSQLiteOpenHelper(android.content.Context inContext){
+		 super(context, DB_NAME, null, DB_VERSION);
+	  }
+
+	  @Override
+	  public void onCreate(android.database.sqlite.SQLiteDatabase db){
+
+		 String newTableQueryString = "create table " + TABLE_NAME + " (" + TABLE_ROW_ID + " integer primary key autoincrement not null," + TABLE_ROW_NAME + " text not null," + TABLE_ROW_PHONENUM + " text not null," + TABLE_ROW_EMAIL + " text not null," + TABLE_ROW_PHOTOID + " BLOB" + ");";
+
+		 db.execSQL(newTableQueryString);
+
+	  }
+
+	  @Override
+	  public void onUpgrade(android.database.sqlite.SQLiteDatabase db, int oldVersion, int newVersion){
+
+		 String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+		 db.execSQL(DROP_TABLE);
+		 onCreate(db);
+	  }
+
+   }
+
 
 }

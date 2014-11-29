@@ -6,12 +6,11 @@ import android.view.MenuItem;
 
 public class ContactsMainActivity extends Activity implements android.view.View.OnClickListener {
 
-   final static        String TAG                     = "MainActivity";
    public final static int    CONTACT_ADD_REQ_CODE    = 100;
    public final static int    CONTACT_UPDATE_REQ_CODE = 101;
    public final static String REQ_TYPE                = "req_type";
    public final static String ITEM_POSITION           = "item_position";
-
+   final static String TAG = "MainActivity";
    private android.widget.ListView listReminder;
    private android.widget.Button   addNewButton;
 
@@ -39,18 +38,6 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 
    private void setListeners(){
 	  addNewButton.setOnClickListener(this);
-   }
-
-   @Override
-   public void onClick(android.view.View v){
-
-	  switch(v.getId()){
-		 case R.id.addNew:
-			android.content.Intent intent = new android.content.Intent(ContactsMainActivity.this, AddNewContactActivity.class);
-			intent.putExtra(REQ_TYPE, CONTACT_ADD_REQ_CODE);
-			startActivityForResult(intent, CONTACT_ADD_REQ_CODE);
-			break;
-	  }
    }
 
    @Override
@@ -107,5 +94,65 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 
 		 }
 	  }
+   }
+
+   @Override
+   public void onClick(android.view.View v){
+
+	  switch(v.getId()){
+		 case R.id.addNew:
+			android.content.Intent intent = new android.content.Intent(ContactsMainActivity.this, AddNewContactActivity.class);
+			intent.putExtra(REQ_TYPE, CONTACT_ADD_REQ_CODE);
+			startActivityForResult(intent, CONTACT_ADD_REQ_CODE);
+			break;
+	  }
+   }
+
+   public void provider(android.view.View v){ // usage example for other apps, or yours using an external content provider
+
+	  android.net.Uri ur;
+
+	  //insert
+		/*ContentValues values = new ContentValues();
+		values.put(PersonalContactContract.Columns.TABLE_ROW_NAME, "aakash");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_PHONENUM, "9910783325");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_EMAIL, "ak.com");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_PHOTOID,"abc");
+
+		ur = PersonalContactContract.CONTENT_URI;
+		ur = getContentResolver().insert(ur, values);*/
+
+	  ur = android.content.ContentUris.withAppendedId(com.nullcognition.sqle2ndpass.provider.PersonalContactContract.CONTENT_URI, 2);
+
+	  String[] projection = com.nullcognition.sqle2ndpass.provider.PersonalContactContract.PROJECTION_ALL;
+	  String selection = com.nullcognition.sqle2ndpass.provider.PersonalContactContract.Columns.TABLE_ROW_NAME + "=?";
+	  String[] selectionArgs = new String[]{"vikash"};
+
+	  //query
+		/*Cursor cr = getContentResolver().query(ur, projection,
+				null, null, null);
+
+		if(cr != null) {
+			if(cr.getCount() > 0) {
+				cr.moveToFirst();
+				String name = cr.getString(cr.getColumnIndexOrThrow("contact_name"));
+			}
+		}*/
+
+	  //delete
+		/*ur = PersonalContactContract.CONTENT_URI;
+		int count = getContentResolver().delete(ur, selection, selectionArgs);
+		cAdapter.notifyDataSetChanged();*/
+
+	  //update
+		/*ContentValues values = new ContentValues();
+		values.put(PersonalContactContract.Columns.TABLE_ROW_NAME, "aakash");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_PHONENUM, "9910783325");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_EMAIL, "ak.com");
+		values.put(PersonalContactContract.Columns.TABLE_ROW_PHOTOID,"abc");
+
+		int count = getContentResolver().update(ur, values, null, null);
+		cAdapter.notifyDataSetChanged();*/
+
    }
 }

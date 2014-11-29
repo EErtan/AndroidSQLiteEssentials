@@ -7,16 +7,19 @@ import android.view.MenuItem;
 
 public class AddNewContactActivity extends Activity implements android.view.View.OnClickListener {
 
+   // obseletes the casting code
+   // public <T> T findById(int id) { return (T) findViewById(id); }
+
    public static final int PICK_PHOTO_FROM_GALLERY   = 1001;
    public static final int CAPTURE_PHOTO_FROM_CAMERA = 1002;
-
+   public static final  int    PICK_CONTACT = 1003;
+   private final static String TAG          = "adnewcontactactvity";
+   android.widget.ImageButton getContact;
    private android.widget.TextView contactName, contactPhone, contactEmail, contactPhoto;
    private android.widget.Button doneButton, pickPhotoBtn;
    private android.widget.ImageView capturedImg;
-
    private android.graphics.Bitmap imageBitmap;
    private byte[]                  blob;
-
    private boolean photoPicked = false;
    private int reqType;
    private int rowId;
@@ -67,11 +70,171 @@ public class AddNewContactActivity extends Activity implements android.view.View
 	  doneButton = (android.widget.Button)findViewById(R.id.doneBtn);
 	  pickPhotoBtn = (android.widget.Button)findViewById(R.id.pickPhotoBtn);
 	  capturedImg = (android.widget.ImageView)findViewById(R.id.capturedImg);
+	  getContact = (android.widget.ImageButton)findViewById(R.id.getContact);
+
    }
 
    private void setListeners(){
 	  doneButton.setOnClickListener(this);
 	  pickPhotoBtn.setOnClickListener(this);
+	  getContact.setOnClickListener(this);
+   }
+
+   @Override
+   public boolean onCreateOptionsMenu(Menu menu){
+	  getMenuInflater().inflate(R.menu.menu_add_new, menu);
+	  return true;
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(MenuItem item){
+	  int id = item.getItemId();
+
+	  if(id == R.id.action_settings){
+		 return true;
+	  }
+
+	  return super.onOptionsItemSelected(item);
+   }
+
+   @Override
+   protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data){
+	  super.onActivityResult(requestCode, resultCode, data);
+
+	  String path;
+
+	  android.net.Uri uri = null;
+
+	  try{
+		 uri = data.getData();
+
+	  }
+	  catch(Exception e){ e.printStackTrace(); }
+
+	  if(requestCode == PICK_PHOTO_FROM_GALLERY){
+
+		 if(resultCode == RESULT_OK){
+			if(uri != null){
+			   path = getImagePath(data.getData());
+			   imageBitmap = getScaledBitmap(path, 256);
+			   capturedImg.setImageBitmap(imageBitmap);
+			   blob = getBlob();
+
+			   photoPicked = true;
+			}
+			else{
+			   android.widget.Toast.makeText(this, "Could not load image", android.widget.Toast.LENGTH_LONG).show();
+			}
+		 }
+		 else if(resultCode == RESULT_CANCELED){
+
+			photoPicked = false;
+		 }
+	  }
+	  else if(requestCode == CAPTURE_PHOTO_FROM_CAMERA){
+
+		 if(resultCode == RESULT_OK){
+
+			if(uri != null){
+			   path = getImagePath(uri);
+			   imageBitmap = getScaledBitmap(path, 256);
+			   capturedImg.setImageBitmap(imageBitmap);
+			   blob = getBlob();
+			   photoPicked = true;
+			}
+			else{
+			   android.widget.Toast.makeText(this, "Could not load image", android.widget.Toast.LENGTH_LONG).show();
+			}
+
+		 }
+		 else if(resultCode == RESULT_CANCELED){
+
+			photoPicked = false;
+		 }
+	  }
+	  else if(requestCode == PICK_CONTACT){
+		 if(resultCode == Activity.RESULT_OK)
+
+		 {
+			android.net.Uri contactData = data.getData();
+			android.database.Cursor c = getContentResolver().query(contactData, null, null, null, null);
+			if(c.moveToFirst()){
+			   String id = c.getString(c.getColumnIndexOrThrow(android.provider.ContactsContract.Contacts._ID));
+
+			   String hasPhone = c.getString(c.getColumnIndex(android.provider.ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+			   if(hasPhone.equalsIgnoreCase("1")){
+				  android.database.Cursor phones = getContentResolver().query(android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, android.provider.ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + id, null, null);
+				  phones.moveToFirst();
+				  contactPhone.setText(phones.getString(phones.getColumnIndex("data1")));
+
+				  contactName.setText(phones.getString(phones.getColumnIndex(android.provider.ContactsContract.Contacts.DISPLAY_NAME)));
+
+			   }
+
+			}
+		 }
+
+	  }
+
+   }
+
+   private byte[] getBlob(){
+
+	  java.io.ByteArrayOutputStream boas = new java.io.ByteArrayOutputStream();
+	  imageBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, boas);
+
+	  byte[] byteArray = boas.toByteArray();
+
+	  return byteArray;
+   }
+
+   private String getImagePath(android.net.Uri inUri){
+
+	  String[] projection = new String[]{android.provider.MediaStore.MediaColumns.DATA};
+	  android.database.Cursor cursor = this.managedQuery(inUri, projection, null, null, null);
+
+	  int column_index = cursor.getColumnIndexOrThrow(android.provider.MediaStore.MediaColumns.DATA);
+	  cursor.moveToFirst();
+
+	  String path = cursor.getString(column_index);
+
+	  return path;
+   }
+
+   private android.graphics.Bitmap getScaledBitmap(String path, int maxSize){
+
+	  android.graphics.Bitmap bmp = null;
+	  int width, height, inSampleSize;
+
+	  android.graphics.BitmapFactory.Options op = new android.graphics.BitmapFactory.Options();
+	  op.inJustDecodeBounds = true;
+	  op.inPurgeable = true;
+
+	  android.graphics.BitmapFactory.decodeFile(path, op);
+
+	  width = op.outWidth;
+	  height = op.outHeight;
+
+	  if(width == - 1){
+
+		 return null;
+	  }
+
+	  int max = Math.max(width, height);
+	  inSampleSize = 1;
+
+	  while(max > maxSize){
+		 inSampleSize *= 2;
+		 max /= 2;
+	  }
+
+	  op.inJustDecodeBounds = false;
+	  op.inSampleSize = inSampleSize;
+
+	  bmp = android.graphics.BitmapFactory.decodeFile(path, op);
+
+	  return bmp;
    }
 
    @Override
@@ -84,6 +247,20 @@ public class AddNewContactActivity extends Activity implements android.view.View
 		 case R.id.pickPhotoBtn:
 			pickPhoto();
 			break;
+		 case R.id.getContact:
+			pickContact();
+			break;
+	  }
+   }
+
+   public void pickContact(){
+	  try{
+		 android.content.Intent cIntent = new android.content.Intent(android.content.Intent.ACTION_PICK, android.provider.ContactsContract.Contacts.CONTENT_URI);
+		 startActivityForResult(cIntent, PICK_CONTACT);
+	  }
+	  catch(Exception e){
+		 e.printStackTrace();
+		 android.util.Log.i(TAG, "Exception while picking contact");
 	  }
    }
 
@@ -163,131 +340,6 @@ public class AddNewContactActivity extends Activity implements android.view.View
 
 	  }
 
-   }
-
-   @Override
-   protected void onActivityResult(int requestCode, int resultCode, android.content.Intent data){
-	  super.onActivityResult(requestCode, resultCode, data);
-
-	  String path;
-	  android.net.Uri uri = data.getData();
-
-	  if(requestCode == PICK_PHOTO_FROM_GALLERY){
-
-		 if(resultCode == RESULT_OK){
-			if(uri != null){
-			   path = getImagePath(data.getData());
-			   imageBitmap = getScaledBitmap(path, 256);
-			   capturedImg.setImageBitmap(imageBitmap);
-			   blob = getBlob();
-
-			   photoPicked = true;
-			}
-			else{
-			   android.widget.Toast.makeText(this, "Could not load image", android.widget.Toast.LENGTH_LONG).show();
-			}
-		 }
-		 else if(resultCode == RESULT_CANCELED){
-
-			photoPicked = false;
-		 }
-	  }
-	  else if(requestCode == CAPTURE_PHOTO_FROM_CAMERA){
-
-		 if(resultCode == RESULT_OK){
-
-			if(uri != null){
-			   path = getImagePath(uri);
-			   imageBitmap = getScaledBitmap(path, 256);
-			   capturedImg.setImageBitmap(imageBitmap);
-			   blob = getBlob();
-			   photoPicked = true;
-			}
-			else{
-			   android.widget.Toast.makeText(this, "Could not load image", android.widget.Toast.LENGTH_LONG).show();
-			}
-
-		 }
-		 else if(resultCode == RESULT_CANCELED){
-
-			photoPicked = false;
-		 }
-	  }
-   }
-
-   private byte[] getBlob(){
-
-	  java.io.ByteArrayOutputStream boas = new java.io.ByteArrayOutputStream();
-	  imageBitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 100, boas);
-
-	  byte[] byteArray = boas.toByteArray();
-
-	  return byteArray;
-   }
-
-   private String getImagePath(android.net.Uri inUri){
-
-	  String[] projection = new String[]{android.provider.MediaStore.MediaColumns.DATA};
-	  android.database.Cursor cursor = this.managedQuery(inUri, projection, null, null, null);
-
-	  int column_index = cursor.getColumnIndexOrThrow(android.provider.MediaStore.MediaColumns.DATA);
-	  cursor.moveToFirst();
-
-	  String path = cursor.getString(column_index);
-
-	  return path;
-   }
-
-   private android.graphics.Bitmap getScaledBitmap(String path, int maxSize){
-
-	  android.graphics.Bitmap bmp = null;
-	  int width, height, inSampleSize;
-
-	  android.graphics.BitmapFactory.Options op = new android.graphics.BitmapFactory.Options();
-	  op.inJustDecodeBounds = true;
-	  op.inPurgeable = true;
-
-	  android.graphics.BitmapFactory.decodeFile(path, op);
-
-	  width = op.outWidth;
-	  height = op.outHeight;
-
-	  if(width == - 1){
-
-		 return null;
-	  }
-
-	  int max = Math.max(width, height);
-	  inSampleSize = 1;
-
-	  while(max > maxSize){
-		 inSampleSize *= 2;
-		 max /= 2;
-	  }
-
-	  op.inJustDecodeBounds = false;
-	  op.inSampleSize = inSampleSize;
-
-	  bmp = android.graphics.BitmapFactory.decodeFile(path, op);
-
-	  return bmp;
-   }
-
-   @Override
-   public boolean onCreateOptionsMenu(Menu menu){
-	  getMenuInflater().inflate(R.menu.menu_add_new, menu);
-	  return true;
-   }
-
-   @Override
-   public boolean onOptionsItemSelected(MenuItem item){
-	  int id = item.getItemId();
-
-	  if(id == R.id.action_settings){
-		 return true;
-	  }
-
-	  return super.onOptionsItemSelected(item);
    }
 
 }

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nullcognition.sqle2ndpass" >
+<manifest
+	package="com.nullcognition.sqle2ndpass"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	>
 
-    <application
+	<application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -18,7 +20,13 @@
         <activity
             android:name="com.nullcognition.sqle2ndpass.ContactsMainActivity"
             android:label="@string/title_activity_contacts_main" >
-            <intent-filter>
+	        <!--            <provider
+					android:name="com.personalcontactmanager.provider.PersonalContactProvider"
+					android:authorities="com.personalcontactmanager.provider"
+					android:exported="true"
+					android:grantUriPermissions="true" />
+	-->
+	        <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -28,6 +36,14 @@
             android:name="com.nullcognition.sqle2ndpass.TestMainActivity"
             android:label="@string/title_activity_test_main" >
         </activity>
-    </application>
+
+		<provider
+			android:name="com.nullcognition.sqle2ndpass.provider.PersonalContactProvider"
+			android:authorities="com.nullcognition.sqle2ndpass.provider"
+			android:enabled="true"
+			android:exported="true"
+			>
+		</provider>
+	</application>
 
 </manifest>
