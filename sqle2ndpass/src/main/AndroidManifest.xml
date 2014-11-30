@@ -5,43 +5,50 @@
 	>
 
 	<application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <activity
-            android:name="com.nullcognition.sqle2ndpass.MainActivity"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
-            android:name="com.nullcognition.sqle2ndpass.AddNewContactActivity"
-            android:label="@string/title_activity_add_new" >
-        </activity>
-        <activity
-            android:name="com.nullcognition.sqle2ndpass.ContactsMainActivity"
-            android:label="@string/title_activity_contacts_main" >
-	        <!--            <provider
+		android:allowBackup="true"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme"
+		>
+		<activity
+			android:name="com.nullcognition.sqle2ndpass.MainActivity"
+			android:label="@string/app_name"
+			>
+		</activity>
+		<activity
+			android:name="com.nullcognition.sqle2ndpass.AddNewContactActivity"
+			android:label="@string/title_activity_add_new"
+			>
+		</activity>
+		<activity
+			android:name="com.nullcognition.sqle2ndpass.ContactsMainActivity"
+			android:label="@string/title_activity_contacts_main"
+			>
+			<!--            <provider
 					android:name="com.personalcontactmanager.provider.PersonalContactProvider"
 					android:authorities="com.personalcontactmanager.provider"
 					android:exported="true"
 					android:grantUriPermissions="true" />
 	-->
-	        <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.nullcognition.sqle2ndpass.TestMainActivity"
-            android:label="@string/title_activity_test_main" >
-        </activity>
+				<category android:name="android.intent.category.LAUNCHER"/>
+			</intent-filter>
+		</activity>
+		<activity
+			android:name="com.nullcognition.sqle2ndpass.TestMainActivity"
+			android:label="@string/title_activity_test_main"
+			>
+		</activity>
 
 		<provider
 			android:name="com.nullcognition.sqle2ndpass.provider.PersonalContactProvider"
 			android:authorities="com.nullcognition.sqle2ndpass.provider"
 			android:enabled="true"
 			android:exported="true"
+			android:grantUriPermissions="true"
+			android:readPermission="com.nullcogition.sqle2ndpass.provider.read"
 			>
 		</provider>
 	</application>

@@ -36,7 +36,7 @@ public class SQLiteHelperClass {
 
 			String createContactsTable = "CREATE TABLE " +
 										 TABLE_CONTACTS + "(" +
-										 KEY_ID + " INTEGER PRIMANRY KEY," +
+										 KEY_ID + " INTEGER PRIMARY KEY," +
 										 KEY_NAME + " TEXT," +
 										 KEY_NUMBER + "INTEGER" + ")";
 

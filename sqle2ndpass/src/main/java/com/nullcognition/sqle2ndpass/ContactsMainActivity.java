@@ -8,15 +8,18 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 															  android.app.LoaderManager.LoaderCallbacks<android.database.Cursor> {
 
 
-   public final static int    CONTACT_ADD_REQ_CODE    = 100;
-   public final static int    CONTACT_UPDATE_REQ_CODE = 101;
-   public final static String REQ_TYPE                = "req_type";
-   public final static String ITEM_POSITION           = "item_position";
-   final static        String TAG                     = "MainActivity";
-   private android.widget.ListView listReminder;
+   public final static  int    CONTACT_ADD_REQ_CODE    = 100;
+   public final static  int    CONTACT_UPDATE_REQ_CODE = 101;
+   public final static  String REQ_TYPE                = "req_type";
+   public final static  String ITEM_POSITION           = "item_position";
+   final static         String TAG                     = "MainActivity";
+   private static final int    CUR_LOADER              = 0;
+   private android.widget.ListView listContact;
    private android.widget.Button   addNewButton;
 
-   private CustomListAdapter cAdapter;
+   com.nullcognition.sqle2ndpass.databasemanager.DatabaseManager dm;
+   private CustomCursorAdapter adapter;
+   //private CustomListAdapter cAdapter;
 
    @Override
    protected void onCreate(Bundle savedInstanceState){
@@ -26,16 +29,26 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 	  bindViews();
 	  setListeners();
 
-	  cAdapter = new CustomListAdapter(this);
-	  listReminder.setAdapter(cAdapter);
+//	  cAdapter = new CustomListAdapter(this);
 
-	  registerForContextMenu(listReminder);
+	  dm = new com.nullcognition.sqle2ndpass.databasemanager.DatabaseManager(this);
+
+	  adapter = new CustomCursorAdapter(this, null);
+
+	  displayListView();
+	  getLoaderManager().initLoader(CUR_LOADER, null, this);
+   }
+
+
+   private void displayListView(){
+	  listContact.setAdapter(adapter);
+	  registerForContextMenu(listContact);
 
    }
 
    private void bindViews(){
 	  addNewButton = (android.widget.Button)findViewById(R.id.addNew);
-	  listReminder = (android.widget.ListView)findViewById(R.id.list);
+	  listContact = (android.widget.ListView)findViewById(R.id.list);
    }
 
    private void setListeners(){
@@ -53,20 +66,20 @@ public class ContactsMainActivity extends Activity implements android.view.View.
    public boolean onContextItemSelected(MenuItem item){
 
 	  android.widget.AdapterView.AdapterContextMenuInfo info = (android.widget.AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
-	  ContactModel contactObj = (ContactModel)cAdapter.getItem(info.position);
+	  ContactModel contactObj = (ContactModel)adapter.getItem(info.position);
 
 	  switch(item.getItemId()){
 		 case R.id.delete_item:
 
-			cAdapter.delRow(info.position);
-			cAdapter.notifyDataSetChanged();
+			//adapter.delRow(info.position);
+			//adapter.notifyDataSetChanged();
 			return true;
 		 case R.id.update_item:
 
-			android.content.Intent intent = new android.content.Intent(ContactsMainActivity.this, AddNewContactActivity.class);
-			intent.putExtra(ITEM_POSITION, contactObj.getId());
-			intent.putExtra(REQ_TYPE, CONTACT_UPDATE_REQ_CODE);
-			startActivityForResult(intent, CONTACT_ADD_REQ_CODE);
+//			android.content.Intent intent = new android.content.Intent(ContactsMainActivity.this, AddNewContactActivity.class);
+//			intent.putExtra(ITEM_POSITION, contactObj.getId());
+//			intent.putExtra(REQ_TYPE, CONTACT_UPDATE_REQ_CODE);
+//			startActivityForResult(intent, CONTACT_ADD_REQ_CODE);
 
 			break;
 	  }
@@ -81,7 +94,7 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 	  if(requestCode == CONTACT_ADD_REQ_CODE){
 		 if(resultCode == RESULT_OK){
 			// Notify the adapter that underlying data set has changed
-			cAdapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		 }
 		 else if(resultCode == RESULT_CANCELED){
 
@@ -90,7 +103,7 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 	  else if(requestCode == CONTACT_UPDATE_REQ_CODE){
 		 if(resultCode == RESULT_OK){
 			// Notify the adapter that underlying data set has changed
-			cAdapter.notifyDataSetChanged();
+			adapter.notifyDataSetChanged();
 		 }
 		 else if(resultCode == RESULT_CANCELED){
 
@@ -160,16 +173,32 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 
    @Override
    public android.content.Loader<android.database.Cursor> onCreateLoader(int id, android.os.Bundle args){
-	  return null;
+	  switch(id){
+		 case CUR_LOADER:
+			// Returns a new CursorLoader
+			return new android.content.CursorLoader(this, // Parent activity context
+													com.nullcognition.sqle2ndpass.provider.PersonalContactContract.CONTENT_URI, // Table to query
+													com.nullcognition.sqle2ndpass.provider.PersonalContactContract.PROJECTION_ALL, // Projection to
+													// return
+													null, // No selection clause
+													null, // No selection arguments
+													null // Default sort order
+			);
+		 default:
+			// An invalid id was passed in
+			return null;
+	  }
    }
+
 
    @Override
    public void onLoadFinished(android.content.Loader<android.database.Cursor> loader, android.database.Cursor data){
-
+	  this.adapter.changeCursor(data);
    }
 
    @Override
    public void onLoaderReset(android.content.Loader<android.database.Cursor> loader){
+	  this.adapter.changeCursor(null);
 
    }
 }
