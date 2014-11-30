@@ -4,13 +4,15 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class ContactsMainActivity extends Activity implements android.view.View.OnClickListener {
+public class ContactsMainActivity extends Activity implements android.view.View.OnClickListener,
+															  android.app.LoaderManager.LoaderCallbacks<android.database.Cursor> {
+
 
    public final static int    CONTACT_ADD_REQ_CODE    = 100;
    public final static int    CONTACT_UPDATE_REQ_CODE = 101;
    public final static String REQ_TYPE                = "req_type";
    public final static String ITEM_POSITION           = "item_position";
-   final static String TAG = "MainActivity";
+   final static        String TAG                     = "MainActivity";
    private android.widget.ListView listReminder;
    private android.widget.Button   addNewButton;
 
@@ -153,6 +155,21 @@ public class ContactsMainActivity extends Activity implements android.view.View.
 
 		int count = getContentResolver().update(ur, values, null, null);
 		cAdapter.notifyDataSetChanged();*/
+
+   }
+
+   @Override
+   public android.content.Loader<android.database.Cursor> onCreateLoader(int id, android.os.Bundle args){
+	  return null;
+   }
+
+   @Override
+   public void onLoadFinished(android.content.Loader<android.database.Cursor> loader, android.database.Cursor data){
+
+   }
+
+   @Override
+   public void onLoaderReset(android.content.Loader<android.database.Cursor> loader){
 
    }
 }
