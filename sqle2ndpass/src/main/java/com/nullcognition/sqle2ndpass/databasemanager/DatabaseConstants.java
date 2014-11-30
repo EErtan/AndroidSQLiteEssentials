@@ -6,7 +6,7 @@ public interface DatabaseConstants {
 
    // public static final by default*
    String DB_NAME    = "contact";
-   int    DB_VERSION = 1;
+   int    DB_VERSION = 2;
 
    String TABLE_NAME         = "contact_table";
    String TABLE_ROW_ID       = "_id";
